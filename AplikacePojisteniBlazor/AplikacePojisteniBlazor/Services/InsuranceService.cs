@@ -3,95 +3,115 @@ using System.Collections.Generic;
 using AplikacePojisteniBlazor.Data;
 using AplikacePojisteniBlazor.Models;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace AplikacePojisteniBlazor.Services
 {
     public class InsuranceService
     {
-        private List<ClientData> ClientsData { get; set; } = new List<ClientData>();
-        private List<Insurance> Insurances { get; set; } = new List<Insurance>();
+        private readonly IAppDbContextFactory _dbContextFactory;
 
 
-        public InsuranceService()
+        public InsuranceService(IAppDbContextFactory dbContextFactory)
         {
-            // Inicializace dat
-
-            ClientsData.Add(new ClientData
-            {
-                Id = 1,
-                FirstName = "Jan",
-                LastName = "Novák",
-                Email = "novak.jan@gmail.com",
-                Phone = "123456789"
-            });
-            ClientsData.Add(new ClientData
-            {
-                Id = 2,
-                FirstName = "Petr",
-                LastName = "Svoboda",
-                Email = "petr.svoboda@gmail.com",
-                Phone = "987654321"
-
-            });
-
-
-            Insurances.Add(new Insurance
-            {
-                Id = 1,
-                PolicyNumber = "POL001",
-                Type = "Auto",
-                Premium = 5000,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddYears(1),
-                ClientId = 1
-            });
-            Insurances.Add(new Insurance
-            {
-
-
-                Id = 2,
-                PolicyNumber = "POL002",
-                Type = "Dům",
-                Premium = 10000,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddYears(2),
-                ClientId = 2
-            });
-
-
+            _dbContextFactory = dbContextFactory;
         }
 
-        public List<Insurance> GetInsurances() => Insurances;
-
-        public List<ClientData> GetClientsData() => ClientsData;
-
+        public List<Insurance> GetInsurances()
+        {
+            using var context = _dbContextFactory.CreateDbContext();
+            return context.Insurances.ToList();
+        }
+        public async Task<List<ClientData>> GetClientDataAsync()
+        {
+            var context = _dbContextFactory.CreateDbContext();
+            return await context.ClientDatas.ToListAsync();
+        }
+        public async Task AddClient(ClientData client)
+        {
+            using var context = _dbContextFactory.CreateDbContext();
+            context.ClientDatas.Add(client);
+            await context.SaveChangesAsync();
+        }
         public void AddInsurance(Insurance insurance)
         {
-            insurance.Id = Insurances.Any() ? Insurances.Max(i => i.Id) + 1 : 1;
-            Insurances.Add(insurance);
+            using var context = _dbContextFactory.CreateDbContext();
+            context.Insurances.Add(insurance);
+            context.SaveChanges();
+        }
+        public void DeleteInsurance(int id)
+        {
+            using var context = _dbContextFactory.CreateDbContext();
+            var insurance = context.Insurances.Find(id);
+            if (insurance != null)
+            {
+                context.Insurances.Remove(insurance);
+                context.SaveChanges();
+            }
         }
         public void UpdateInsurance(Insurance insurance)
         {
-            var existing = Insurances.FirstOrDefault(i => i.Id == insurance.Id);
-            if (existing != null)
-            {
-                existing.PolicyNumber = insurance.PolicyNumber;
-                existing.Type = insurance.Type;
-                existing.Premium = insurance.Premium;
-                existing.StartDate = insurance.StartDate;
-                existing.EndDate = insurance.EndDate;
-                existing.ClientId = insurance.ClientId;
-            }
+            using var context = _dbContextFactory.CreateDbContext();
+            context.Insurances.Update(insurance);
+            context.SaveChanges();
         }
-
-        public void DeleteInsurance(int id)
+        public Insurance GetInsuranceById(int id)
         {
-            var insurance = Insurances.FirstOrDefault(i => i.Id == id);
-            if (insurance != null)
-            {
-                Insurances.Remove(insurance);
-            }
+            using var context = _dbContextFactory.CreateDbContext();
+            return context.Insurances.Find(id);
         }
-        public Insurance GetInsuranceById(int id) => Insurances.FirstOrDefault(i => i.Id == id);
     }
 }
+        
+        
+    //    private readonly AppDbContext _context;
+    //    public InsuranceService(AppDbContext context)
+    //    {
+    //        _context = context;
+    //        //ClientsData = _context.ClientsData.ToList();
+    //        //Insurances = _context.Insurances.ToList();
+    //    }
+
+    //    public List<Insurance> GetInsurances()
+    //    {
+    //        return _context.Insurances.ToList();
+    //    }
+
+    //    public List<ClientData> GetClientsData()
+    //    {
+    //        return _context.ClientsData.ToList();
+    //    }
+    //    public async Task AddClient(ClientData client)
+    //    {
+    //        _context.ClientsData.Add(client);
+    //        await _context.SaveChangesAsync();
+    //    }
+    //    public void DeleteInsurance(int id)
+    //    {
+    //        var insurance = _context.Insurances.Find(id);
+    //        if (insurance != null)
+    //        {
+    //            _context.Insurances.Remove(insurance);
+    //            _context.SaveChanges();
+    //        }
+    //    }
+    //    public void AddInsurance(Insurance insurance)
+    //    {
+    //        _context.Insurances.Add(insurance);
+    //        _context.SaveChanges();
+    //    }
+    //    public void UpdateInsurance(Insurance insurance)
+    //    {
+    //        _context.Insurances.Update(insurance);
+    //        _context.SaveChanges();
+    //    }
+    //    public Insurance GetInsuranceById(int id)
+    //    {
+    //        return _context.Insurances.Find(id);
+    //    }
+    //}
+
+
+
+
+

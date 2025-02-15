@@ -1,0 +1,42 @@
+﻿@page "/add-client"
+@inject InsuranceService InsuranceService
+@inject NavigationManager NavigationManager
+
+<h3>AddClient</h3>
+
+        <EditForm Model="newClient" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group">
+                    <label for="First Name:">Jméno</label>
+                    <InputText id="firstName"   @bind-Value="newClient.FirstName" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Last Name:">Příjmení</label>
+                    <InputText id="lastName" @bind-Value="newClient.LastName" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Email:">Email</label>
+                    <InputDate id="email" @bind-Value="newClient.Email" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="phone">Telefon</label>
+                    <InputText @bind-Value="newClient.Phone" class="form-control" />
+                </div>
+    
+                <button type="submit" class="btn btn-succes">Uložit</button>
+                <a href="/insurance" class="btn btn-secondary">Back</a>
+        </EditForm>
+        
+
+@code {
+    
+    private ClientData newClient = new ClientData();
+    private void HandleValidSubmit()
+    {
+        InsuranceService.AddClient(newClient);
+        NavigationManager.NavigateTo("/insurance");
+    }
+
+}

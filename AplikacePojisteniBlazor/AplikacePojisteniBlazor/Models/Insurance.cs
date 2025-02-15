@@ -9,5 +9,7 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int ClientId { get; set; } // ID klienta
+
+        public ClientData ClientData { get; set; } // Reference na klienta
     }
 }

@@ -39,7 +39,7 @@
         <InputDate @bind-Value="Insurance.EndDate" class="form-control" />
     </div>
     <button type="submit" class="btn btn-primary">Uložit</button>
-    <a href="/insurances" class="btn btn-secondary">Zpět</a>
+    <a href="/insurance" class="btn btn-secondary">Zpět</a>
 </EditForm>
 
 @code {
@@ -50,17 +50,22 @@
     private Insurance Insurance = new Insurance();
     private List<ClientData> clients;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        clients = InsuranceService.GetClientsData();
+        clients = await InsuranceService.GetClientDataAsync();
         if (Id != 0)
         {
-            Insurance = InsuranceService.GetInsuranceById(Id);
+            var insurance = InsuranceService.GetInsuranceById(Id);
+            if(insurance !=null)
+            {
+                Insurance = insurance;
+            }
         }
     }
 
     private void SaveInsurance()
     {
+        
         if (Insurance.Id == 0)
         {
             InsuranceService.AddInsurance(Insurance);
@@ -69,7 +74,7 @@
         {
             InsuranceService.UpdateInsurance(Insurance);
         }
-        NavigationManager.NavigateTo("/insurances");
+        NavigationManager.NavigateTo("/insurance");
     }
 
 }

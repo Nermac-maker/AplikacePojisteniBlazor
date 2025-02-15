@@ -1,7 +1,6 @@
-﻿@page "/insurance-list"
+﻿@page "/insurance"
 @inject InsuranceService InsuranceService
 
-<h3>Seznam pojištění</h3>
 
 <h3>Seznam pojištění</h3>
 
@@ -16,43 +15,47 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var insurance in insurances)
-        {
-            <tr>
-                <td>@insurance.PolicyNumber</td>
-                <td>@insurance.Type</td>
-                <td>@insurance.Premium.ToString("C")</td>
-                <td>@GetClientName(insurance.ClientId)</td>
-                <td>
-                    <a href="/edit-insurance/@insurance.Id" class="btn btn-primary">Upravit</a>
-                    <button @onclick="() => DeleteInsurance(insurance.Id)" class="btn btn-danger">Smazat</button>
-                </td>
-            </tr>
+        @if (Insurances != null)
+        {         
+            @foreach (var insurance in Insurances)
+            {
+                <tr>
+                    <td>@insurance.PolicyNumber</td>
+                    <td>@insurance.Type</td>
+                    <td>@insurance.Premium.ToString("C")</td>
+                    <td>@GetClientName(insurance.ClientId)</td>
+                    <td>
+                        <a href="/edit-insurance/@insurance.Id" class="btn btn-primary">Upravit</a>
+                        <button @onclick="() => DeleteInsurance(insurance.Id)" class="btn btn-danger">Smazat</button>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
 
 <a href="/add-insurance" class="btn btn-success">Přidat pojištění</a>
+<a href="/add-client" class="btn btn-success">Přidat klienta</a>
 
 @code {
-    private List<Insurance> insurances;
-    private List<ClientData> clients;
+    private List<Insurance> Insurances;
+    private List<ClientData> clientDataList;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        insurances = InsuranceService.GetInsurances();
-        clients = InsuranceService.GetClientsData();
+        
+        clientDataList = await InsuranceService.GetClientDataAsync();
     }
 
     private string GetClientName(int clientId)
     {
-        var client = clients.FirstOrDefault(c => c.Id == clientId);
+        var client = clientDataList.FirstOrDefault(c => c.Id == clientId);
         return client != null ? $"{client.FirstName} {client.LastName}" : "Neznámý klient";
     }
     private void DeleteInsurance(int Id)
     {
         InsuranceService.DeleteInsurance(Id);
-        insurances = InsuranceService.GetInsurances();
+        Insurances = InsuranceService.GetInsurances();
     }
 
 }
