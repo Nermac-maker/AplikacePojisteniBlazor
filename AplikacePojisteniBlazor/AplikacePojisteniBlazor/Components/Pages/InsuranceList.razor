@@ -1,0 +1,58 @@
+﻿@page "/insurance-list"
+@inject InsuranceService InsuranceService
+
+<h3>Seznam pojištění</h3>
+
+<h3>Seznam pojištění</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Číslo pojistky</th>
+            <th>Typ pojištění</th>
+            <th>Výše pojistného</th>
+            <th>Klient</th>
+            <th>Akce</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var insurance in insurances)
+        {
+            <tr>
+                <td>@insurance.PolicyNumber</td>
+                <td>@insurance.Type</td>
+                <td>@insurance.Premium.ToString("C")</td>
+                <td>@GetClientName(insurance.ClientId)</td>
+                <td>
+                    <a href="/edit-insurance/@insurance.Id" class="btn btn-primary">Upravit</a>
+                    <button @onclick="() => DeleteInsurance(insurance.Id)" class="btn btn-danger">Smazat</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/add-insurance" class="btn btn-success">Přidat pojištění</a>
+
+@code {
+    private List<Insurance> insurances;
+    private List<ClientData> clients;
+
+    protected override void OnInitialized()
+    {
+        insurances = InsuranceService.GetInsurances();
+        clients = InsuranceService.GetClientsData();
+    }
+
+    private string GetClientName(int clientId)
+    {
+        var client = clients.FirstOrDefault(c => c.Id == clientId);
+        return client != null ? $"{client.FirstName} {client.LastName}" : "Neznámý klient";
+    }
+    private void DeleteInsurance(int Id)
+    {
+        InsuranceService.DeleteInsurance(Id);
+        insurances = InsuranceService.GetInsurances();
+    }
+
+}

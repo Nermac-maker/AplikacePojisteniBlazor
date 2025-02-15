@@ -1,0 +1,34 @@
+﻿@page "/add-insurance"
+@page "/edit-insurance/{Id:int}"
+@inject InsuranceService InsuranceService
+@inject NavigationManager NavigationManager
+
+
+<h3>@(Insurance.Id == 0 ? "Přidat pojištění" : "Upravit pojištění")</h3>
+
+
+<EditForm Model ="Insurance" OnInvalidSubmit="SaveInsurance">
+    <div class="form-group">
+        <label>Číslo pojistky:</label>
+        <InputText @bind-Value="Insurance.PolicyNumber" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Typ pojištění:</label>
+        <InputText @bind-Value="Insurance.Type" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Výše pojistného:</label>
+        <InputNumber @bind-Value="Insurance.Premium" class="form-control" />
+    </div>
+    <div class="form-group">
+
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Insurance Insurance { get; set; } = new Insurance();
+
+}
